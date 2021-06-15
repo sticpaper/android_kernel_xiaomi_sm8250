@@ -602,7 +602,9 @@ repeat:
 	if (kthread_should_stop())
 		return 0;
 
+#ifndef CONFIG_MIUI_DEVELOPER_F2FS
 	sb_start_intwrite(sbi->sb);
+#endif
 
 	if (!llist_empty(&fcc->issue_list)) {
 		struct flush_cmd *cmd, *next;
@@ -624,7 +626,9 @@ repeat:
 		fcc->dispatch_list = NULL;
 	}
 
+#ifndef CONFIG_MIUI_DEVELOPER_F2FS
 	sb_end_intwrite(sbi->sb);
+#endif
 
 	wait_event_interruptible(*q,
 		kthread_should_stop() || !llist_empty(&fcc->issue_list));

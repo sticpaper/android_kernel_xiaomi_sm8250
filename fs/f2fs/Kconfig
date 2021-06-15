@@ -126,3 +126,11 @@ config F2FS_FS_LZ4
 	default y
 	help
 	  Support LZ4 compress algorithm, if unsure, say Y.
+
+config MIUI_DEVELOPER_F2FS
+	bool "MIUI DEVELOPER F2FS support"
+	depends on F2FS_FS
+	help
+	  Prevent deviations from the stable version of the file system.
+
+	  If you want to improve the performance, say N.
