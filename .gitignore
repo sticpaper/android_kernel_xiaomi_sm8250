@@ -133,11 +133,22 @@ all.config
 # Kdevelop4
 *.kdev4
 
+# out-kernel-files
+out
+
+# kernel-scripts
+phone_build.sh
+server_build.sh
+
+# kernel-tools
+toolchain
+paper_kernel_tools
+
 # fetched Android config fragments
 kernel/configs/android-*.cfg
 
 # vendor device tree directories
-arch/arm64/boot/dts/vendor/
+#arch/arm64/boot/dts/vendor/
 
 # Tech package directories
 #techpack/
