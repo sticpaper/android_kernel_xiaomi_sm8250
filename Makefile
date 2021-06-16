@@ -301,18 +301,6 @@ export VERSION PATCHLEVEL SUBLEVEL KERNELRELEASE KERNELVERSION
 
 include scripts/subarch.include
 
-LINK_DUM_MISYSINFO :=$(shell if [ ! -L "$(abspath $(srctree))/include/linux/misysinfofreader.h" ]; then \
-		ln -s -f $(abspath $(srctree))/include/dum/misysinfofreader.h $(abspath $(srctree))/include/linux/misysinfofreader.h;  \
-		mkdir -p $(abspath $(srctree))/drivers/staging/misysinfofreader; \
-		touch $(abspath $(srctree))/drivers/staging/misysinfofreader/Kconfig; \
-		touch $(abspath $(srctree))/drivers/staging/misysinfofreader/Makefile; fi;)
-
-LINK_DUM_KPERFEVENTS :=$(shell if [ ! -L "$(abspath $(srctree))/include/linux/kperfevents.h" ]; then \
-		ln -s -f $(abspath $(srctree))/include/dum/kperfevents.h $(abspath $(srctree))/include/linux/kperfevents.h; \
-		mkdir -p $(abspath $(srctree))/drivers/staging/kperfevents; \
-		touch $(abspath $(srctree))/drivers/staging/kperfevents/Kconfig; \
-		touch $(abspath $(srctree))/drivers/staging/kperfevents/Makefile; fi;)
-
 # Cross compiling and selecting different set of gcc/bin-utils
 # ---------------------------------------------------------------------------
 #
@@ -382,7 +370,7 @@ KBUILD_HOSTLDLIBS   := $(HOST_LFS_LIBS) $(HOSTLDLIBS)
 # Make variables (CC, etc...)
 AS		= $(CROSS_COMPILE)as
 LD		= $(CROSS_COMPILE)ld
-CC		= $(CROSS_COMPILE)gcc
+REAL_CC		= $(CROSS_COMPILE)gcc
 CPP		= $(CC) -E
 AR		= $(CROSS_COMPILE)ar
 NM		= $(CROSS_COMPILE)nm
@@ -400,6 +388,10 @@ PYTHON		= python
 PYTHON2		= python2
 PYTHON3		= python3
 CHECK		= sparse
+
+# Use the wrapper for the compiler.  This wrapper scans for new
+# warnings and causes the build to stop upon encountering them
+CC		= $(PYTHON) $(srctree)/scripts/gcc-wrapper.py $(REAL_CC)
 
 CHECKFLAGS     := -D__linux__ -Dlinux -D__STDC__ -Dunix -D__unix__ \
 		  -Wbitwise -Wno-return-void -Wno-unknown-attribute $(CF)
@@ -501,7 +493,7 @@ ifeq ($(shell $(srctree)/scripts/clang-android.sh $(CC) $(CLANG_FLAGS)), y)
 $(error "Clang with Android --target detected. Did you specify CLANG_TRIPLE?")
 endif
 GCC_TOOLCHAIN_DIR := $(dir $(shell which $(CROSS_COMPILE)elfedit))
-CLANG_FLAGS	+= --prefix=$(GCC_TOOLCHAIN_DIR)$(notdir $(CROSS_COMPILE))
+CLANG_FLAGS	+= --prefix=$(GCC_TOOLCHAIN_DIR)
 GCC_TOOLCHAIN	:= $(realpath $(GCC_TOOLCHAIN_DIR)/..)
 endif
 ifneq ($(GCC_TOOLCHAIN),)
@@ -1321,8 +1313,7 @@ headers_install: __headers
 	  $(error Headers not exportable for the $(SRCARCH) architecture))
 	$(Q)$(MAKE) $(hdr-inst)=include/uapi dst=include
 	$(Q)$(MAKE) $(hdr-inst)=arch/$(SRCARCH)/include/uapi $(hdr-dst)
-	$(Q)$(MAKE) $(hdr-inst)=techpack/audio/include/uapi dst=techpack/audio/include
-	$(Q)$(MAKE) $(hdr-inst)=techpack/camera/include/uapi dst=techpack/camera/include
+	$(Q)$(MAKE) $(hdr-inst)=techpack
 
 PHONY += headers_check_all
 headers_check_all: headers_install_all
@@ -1332,8 +1323,7 @@ PHONY += headers_check
 headers_check: headers_install
 	$(Q)$(MAKE) $(hdr-inst)=include/uapi dst=include HDRCHECK=1
 	$(Q)$(MAKE) $(hdr-inst)=arch/$(SRCARCH)/include/uapi $(hdr-dst) HDRCHECK=1
-	$(Q)$(MAKE) $(hdr-inst)=techpack/audio/include/uapi dst=techpack/audio/include HDRCHECK=1
-	$(Q)$(MAKE) $(hdr-inst)=techpack/camera/include/uapi dst=techpack/camera/include HDRCHECK=1
+	$(Q)$(MAKE) $(hdr-inst)=techpack HDRCHECK=1
 
 # ---------------------------------------------------------------------------
 # Kernel selftest
