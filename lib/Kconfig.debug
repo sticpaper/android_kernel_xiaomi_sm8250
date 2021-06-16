@@ -2127,6 +2127,12 @@ config PANIC_ON_DATA_CORRUPTION
 	 recoverable data corruption scenarios to system-halting panics,
 	 for easier detection and debug.
 
+config KERNEL_KMSG_WRITE
+	bool "Allow user space to write logs to the kernel"
+	default y
+	help
+	 If you want to make dmesg only show the kernel log, say N.
+
 source "samples/Kconfig"
 
 source "lib/Kconfig.kgdb"
