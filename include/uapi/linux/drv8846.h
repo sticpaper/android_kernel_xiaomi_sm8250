@@ -50,7 +50,6 @@ struct drv8846_private_data {
 	enum running_state pwm_state;  /*PWM device state*/
 };
 
-
 #define MOTOR_IOC_SET_AUTO \
 	_IOW(MOTOR_IOC_MAGIC, MOTOR_PRIVATE + 0x01, struct drv8846_private_data)
 
